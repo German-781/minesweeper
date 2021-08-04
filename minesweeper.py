@@ -102,7 +102,6 @@ class Sentence():
         return f"{self.cells} = {self.count}"
 
     def known_mines(self):
-        print("known mines")
         """
         Returns the set of all cells in self.cells known to be mines.
         """
@@ -111,7 +110,6 @@ class Sentence():
         raise NotImplementedError
 
     def known_safes(self):
-        print("known safes")
         """
         Returns the set of all cells in self.cells known to be safe.
         """
@@ -121,7 +119,6 @@ class Sentence():
         raise NotImplementedError
 
     def mark_mine(self, cell):
-        print("Sentence mark mines")
         """
         Updates internal knowledge representation given the fact that
         a cell is known to be a mine.
@@ -173,14 +170,12 @@ class Sentence():
 
 
     def mark_safe(self, cell):
-        #print("sentence mark safe")
         """
         Updates internal knowledge representation given the fact that
         a cell is known to be safe.
         """
 
         for sentence in self.knowledge:
-            #print("sentence Sentence ", sentence)
             if cell in sentence:
 
                 num_celdas = len(sentence) - 1
@@ -232,7 +227,6 @@ class MinesweeperAI():
         self.knowledge = []
 
     def mark_mine(self, cell):
-        print("AI mark mine")
         """
         Marks a cell as a mine, and updates all knowledge
         to mark that cell as a mine as well.
@@ -242,7 +236,6 @@ class MinesweeperAI():
             Sentence.mark_mine(self,cell)
 
     def mark_safe(self, cell):
-        print("AI mark safe")
         """
         Marks a cell as safe, and updates all knowledge
         to mark that cell as safe as well.
@@ -255,7 +248,6 @@ class MinesweeperAI():
 
 
     def add_knowledge(self, cell, count):
-        print("add knownledge")
         """
         Called when the Minesweeper board tells us, for a given
         safe cell, how many neighboring cells have mines in them.
@@ -289,18 +281,8 @@ class MinesweeperAI():
         for jugadas in seguras:
             self.safes.remove(jugadas)
 
-        print("celdas seguras ajustadas ", self.safes)
-        print("celdas minas ", self.mines)
-
-
-
-
-        print("movidas ", self.moves_made)
-
-        print("nueva celda ", cell)
 
         numero_movidas = len(self.moves_made)
-        print("numero de movidas ", numero_movidas)
 
         if numero_movidas > 55:
             print("*** Felicitaciones gano el buscaminas ***")
@@ -332,26 +314,18 @@ class MinesweeperAI():
             mayor_j = j + 2
 
         if count > 0:
-            #self.celdas.add(count)
-            print("contador ", count)
 
             for i in range(menor_i, mayor_i):
-                #print("i ", i)
                 for j in range(menor_j, mayor_j):
-                    #print("j ", j)
                     celda = (i,j)
-                    #print("celda ", celda)
                     if celda not in self.moves_made:
-                        #self.celdas.add(celda)
                         self.celdas = self.celdas + [celda]
-            print("nueva sentence ", self.celdas)
 
             if len(self.celdas) <= count:
                 for celda in self.celdas:
                     MinesweeperAI.mark_mine(self, celda)
             elif len(self.celdas) == 1:                    
                 MinesweeperAI.mark_safe(self, celda)
-
                
             else:
                 self.celdas[:0] = [count]
@@ -359,12 +333,9 @@ class MinesweeperAI():
                 sentence = self.celdas
                 MinesweeperAI.revisa_oraciones(self)
 
-        print("knowledge b ", self.knowledge)
-        
         #raise NotImplementedError
 
     def make_safe_move(self):
-        print("make safe move")
         """
         Returns a safe cell to choose on the Minesweeper board.
         The move must be known to be safe, and not already a move
@@ -390,7 +361,6 @@ class MinesweeperAI():
         #raise NotImplementedError
 
     def make_random_move(self):
-        print("make random move")
         """
         Returns a move to make on the Minesweeper board.
         Should choose randomly among cells that:
@@ -398,22 +368,33 @@ class MinesweeperAI():
             2) are not known to be mines
         """
         move_ok = False
+        fin = False
 
-        while move_ok:
-            i = random.randrange(height)
-            j = random.randrange(width)
+        numero_movidas = len(self.moves_made)
+        if numero_movidas == 56:
+            fin = True
+            move_ok = True
+        else:
+            move_ok = False
+
+
+        while move_ok == False: 
+
+            i = random.randrange(self.height)
+            j = random.randrange(self.width)
             if (i,j) in self.moves_made:
                 continue
             else:
-                if (i,j) in self.known_mines:
+                if (i,j) in self.mines:
                     continue
                 else: 
                     move_ok = True
-
         
-        if move_ok:   
-            print("movida al azar ", (i,j))      
-            return (i,j)
+        if fin == False:
+            if move_ok:   
+                return (i,j)
+            else:
+                return None
         else:
             return None
    
@@ -421,23 +402,17 @@ class MinesweeperAI():
 
         
     def agrega_sentences(self, new_sentences):
-        print("agrega nuevas oraciones a knowledge")
         """
         Agrega nuevas sentences creadas por diferencia a knowledge
         
         """
 
-        print("new-sentences ", new_sentences)
         if len(new_sentences) >= 1:
-            print("largo new sentences ", len(new_sentences))
 
             for new_sentence in new_sentences:
-
-                print(" sentence agrega", new_sentence)
                 contador = new_sentence[0]
                 celdas = new_sentence[1:]
                 num_celdas = len(celdas)
-
             
                 if contador == 0:
                     for celda in celdas:
@@ -449,9 +424,10 @@ class MinesweeperAI():
                             MinesweeperAI.mark_mine(self,celda)
                     else:
                         if len(new_sentence) > 1:
-                            self.knowledge = self.knowledge + [new_sentence]
-
-                            print("knowledge c ", self.knowledge)
+                            if new_sentence in self.knowledge:
+                                continue
+                            else:
+                                self.knowledge = self.knowledge + [new_sentence]
 
     def revisa_oraciones(self):
         """
@@ -460,40 +436,29 @@ class MinesweeperAI():
         
         """
 
-        print("revisa oraciones")
-
         num_oraciones = len(self.knowledge)
-        print("numero oraciones", num_oraciones)
         if num_oraciones > 3:
             for sentence in self.knowledge:
                 MinesweeperAI.subconjuntos(self, sentence)
-
 
     def subconjuntos(self, sentence_e):
         """
         Revisa si una celda dada es subconjunto de alguna oracione en knowledge
        
         """
-
-        #print("subconjuntos ", sentence_e)
         subconjunto = False
         celdas_e = sentence_e[1:]
         contador_e = sentence_e[0]
         new_sentences = []
 
-
         largo_e = len(celdas_e)
-        #print("celdas e ", celdas_e)
-        #print("largo e ", largo_e)
 
         for sentence in self.knowledge:
-            #print("subconjuntos sentence ", sentence)
             largo = len(sentence) - 1
             contador = sentence[0]
             contador_resta = contador_e - contador
             if contador_resta >= 0:
 
-                #print("largo sentence ", largo)
                 if largo < largo_e:
                     celdas = sentence[1:]
                     for celda in celdas:
@@ -526,12 +491,9 @@ class MinesweeperAI():
                                         MinesweeperAI.mark_safe(self, celda)
                
                             new_sentence = new_sentence + celdas_resta
-                            print("new sentence  ", new_sentence)
                             new_sentences = new_sentences + [new_sentence]
-                            print("new sentences  ", new_sentences)
 
         if len(new_sentences) >= 1:
-            print(" nuevas oraciones ", new_sentences)
             MinesweeperAI.agrega_sentences(self, new_sentences)
 
         #raise NotImplementedError
