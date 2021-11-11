@@ -440,12 +440,13 @@ class MinesweeperAI():
         if num_oraciones > 3:
             for sentence in self.knowledge:
                 MinesweeperAI.subconjuntos(self, sentence)
+                
 
     def subconjuntos(self, sentence_e):
         """
-        Revisa si una celda dada es subconjunto de alguna oracione en knowledge
-       
+        Revisa si una celda dada es subconjunto de alguna oracion en knowledge
         """
+
         subconjunto = False
         celdas_e = sentence_e[1:]
         contador_e = sentence_e[0]
