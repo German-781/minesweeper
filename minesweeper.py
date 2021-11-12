@@ -333,6 +333,18 @@ class MinesweeperAI():
                 sentence = self.celdas
                 MinesweeperAI.revisa_oraciones(self)
 
+        elif count == 0:
+
+            for i in range(menor_i, mayor_i):
+                for j in range(menor_j, mayor_j):
+                    celda = (i,j)
+                    if celda not in self.moves_made:
+                        self.celdas = self.celdas + [celda]
+
+            for celda in self.celdas:
+                MinesweeperAI.mark_safe(self, celda)
+
+
         #raise NotImplementedError
 
     def make_safe_move(self):
@@ -493,6 +505,49 @@ class MinesweeperAI():
                
                             new_sentence = new_sentence + celdas_resta
                             new_sentences = new_sentences + [new_sentence]
+
+        for sentence in self.knowledge:
+            largo = len(sentence) - 1
+            contador = sentence[0]
+            contador_resta = contador - contador_e
+            if contador_resta >= 0:
+
+                if largo_e < largo:
+                    celdas = sentence[1:]
+                    for celda_e in celdas_e:
+                        if celda_e in celdas:
+                            subconjunto = True
+                        else:
+                            subconjunto = False
+                            break
+
+                    if subconjunto == True:
+                        contador = sentence[0]
+                        celdas_resta = []
+                        celdas_resta_paso = []
+                        new_sentence = []
+
+                        celdas_resta_paso = set(celdas) - set(celdas_e)
+                        for celda in celdas_resta_paso:
+                            celdas_resta = celdas_resta + [celda]
+
+                        if len(celdas_resta) != 0:
+                            if len(celdas_resta) != len(celdas):
+                                new_sentence[:0] = [contador_resta]
+
+                            if len(celdas_resta) <= contador_resta:
+                                for celda in celdas_resta:
+                                    MinesweeperAI.mark_mine(self, celda)
+                            else:
+                                if len(celdas_resta) == 1:   
+                                    for celda in celdas_resta:
+                                        MinesweeperAI.mark_safe(self, celda)
+               
+                            new_sentence = new_sentence + celdas_resta
+                            new_sentences = new_sentences + [new_sentence]
+
+
+
 
         if len(new_sentences) >= 1:
             MinesweeperAI.agrega_sentences(self, new_sentences)
